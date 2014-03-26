@@ -1,55 +1,30 @@
 .xCalendar{
     position: absolute;
-
+    width:250px;
+    font-size:16px;
     border: 1px solid #aaa;
 }
-.calendar-day{
-    font-size: 18px;
-    width: 51px;
-    height: 30px;
+.xCalendar-top-panel{
+    margin-top: 15px;
+}
+.xCalendar-top-panel .date-holder{
     line-height: 30px;
+    width: 100%;
     text-align: center;
-    position: relative;
 }
-.calendar-day:hover,.calendar-switch-btn:hover{
-    cursor: pointer;
-
-    background: #b8d586;
-    color: #fff;
+.xCalendar-top-panel .date-holder>div{
+    display: inline-block;
+    vertical-align: top;
 }
-.calendar-day.calendar-day-outfocus{
-    color:#ddd;
-}
-.calendar-day.calendar-day-outfocus:hover{
-    color:#000;
-}
-.calendar-day.calendar-day-today{
-
-}
-.calendar-day.calendar-day-today:before{
-    content: " ";
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 0;
-    height: 0;
-    border-top: 0.5em solid #87B23F;
-    border-left: .5em solid transparent;
-}
-.calendar-day.calendar-day-selected{
-    background:#87B23F;
-    color: #fff;
-}
-.weekdays{
-    color:#999;
-}
-.calendar-switch-btn{
+.xCalendar-switch-btn{
     width: 50px;
     height: 30px;
     position: absolute;
     top:15px;
+    -webkit-user-select: none;
+    -moz-user-select:none;
 }
-.calendar-switch-btn:before{
+.xCalendar-switch-btn:before{
     width: 0;
     height: 0;
     display: block;
@@ -60,37 +35,121 @@
     border-top: .5em solid transparent;
     border-bottom: .5em solid transparent;
 }
-.calendar-switch-btn.prev-month{
-
+.xCalendar-switch-btn.prev-month{
     left:0;
 }
-.calendar-switch-btn.next-month{
+.xCalendar-switch-btn.next-month{
     right:0;
 }
-.calendar-switch-btn.prev-month:before{
-
-
+.xCalendar-switch-btn.prev-month:before{
     border-right: 0.75em solid #87B23F;
-
 }
-.calendar-switch-btn.next-month:before{
+.xCalendar-switch-btn.next-month:before{
 
     border-right: 0;
     border-left: 0.75em solid #87B23F;
 
 }
-.calendar-panel{
-    margin-top: 15px;
+
+.xCalendar-table-ctn{
+
+    margin: 0 20px 20px 20px;
+
 }
-#calendar_wrap{
-    margin: 0px 20px 20px 20px;
+.xCalendar-table-ctn .xCalendar_wrap{
+    width:100%;
+    position: relative;
+    overflow: hidden;
+    height:226px
+
 }
-.date-holder{
-    line-height: 30px;
-    width: 100%;
+
+
+.xCalendar-table{
+    width:100%;
+    height:100% ;
+    position: absolute;
+    transition:0.6s;
+    -webkit-transition:0.6s;
+    -moz-transition:0.6s;
+    -o-transition:0.6s;
+    -ms-transition:0.6s;
+    background: #fff;
+}
+.xCalendar-table td{
+    width:14%;
+}
+.xCalendar-table.hide-thead thead{
+    display: none;
+}
+.xCalendar-head-table{
+    width:100%;
+}
+.xCalendar-head-table th{
+
+    width: 51px;
+
     text-align: center;
 }
-.date-holder>div{
+.xCalendar-table .xCalendar-day{
+    font-size: inherit;
+
+    cursor: pointer;
+    text-align: center;
+    position: relative;
+}
+.xCalendar-day:hover,.xCalendar-switch-btn:hover{
+
+    background: #b8d586;
+    color: #fff;
+}
+
+.xCalendar-table .xCalendar-day.xCalendar-day-outfocus{
+    color:#ddd;
+}
+.xCalendar-table .xCalendar-day.xCalendar-day-outfocus:hover{
+    color:#000;
+}
+.xCalendar-table .xCalendar-day.xCalendar-day-today{
+
+}
+.xCalendar-table .xCalendar-day.xCalendar-day-today:before{
+    content: " ";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 0;
+    height: 0;
+    border-top: 0.5em solid #87B23F;
+    border-left: .5em solid transparent;
+}
+.xCalendar-table .xCalendar-day.xCalendar-day-selected{
+    background:#87B23F;
+    color: #fff;
+}
+.xCalendar-table .weekdays{
+    color:#999;
+    font-size:87.5%;
+}
+
+.xCalendar .month-panel >.month-block {
     display: inline-block;
-    vertical-align: top;
+    width: 32%;
+    text-align: center;
+    line-height: 35px;
+    height: 35px;
+    cursor: pointer;
+}
+
+.xCalendar .year-panel >.year-block {
+    display: inline-block;
+    width: 32%;
+    text-align: center;
+    line-height: 35px;
+    height: 35px;
+    cursor: pointer;
+}
+.xCalendar .year-panel >.year-block:hover,.xCalendar .month-panel >.month-block:hover,.xCalendar-table td:hover,.xCalendar-switch-btn:hover{
+    background: #87B23F;
+    color:#fff;
 }
