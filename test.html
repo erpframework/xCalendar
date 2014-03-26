@@ -8,7 +8,9 @@
 
 </head>
 <body>
-<div class="xCalendar">
+<input type="text" id="tour_date"/>
+<script type="text/html">
+    <div class="xCalendar">
 
         <div class="xCalendar-top-panel">
             <div class="prev-month xCalendar-switch-btn"></div>
@@ -49,13 +51,42 @@
         <div class="xCalendar-table-ctn">
             <div class="xCalendar_head_wrap"></div>
             <div class="xCalendar_wrap">
-        </div>
+            </div>
         </div>
 
-</div>
+    </div>
+
+
+
+
+
+    <div class="xCalendar">
+
+        <div class="xCalendar-top-panel">
+            <div class="prev-month xCalendar-switch-btn"></div>
+            <div class="date-holder">
+                <div class="date-year-wrap">2014年</div>
+                <div class="date-month-wrap">3月</div>
+            </div>
+            <div class="next-month xCalendar-switch-btn"></div>
+        </div>
+        <div class="month-panel">
+
+        </div>
+        <div class="year-panel">
+
+        </div>
+        <div class="xCalendar-table-ctn">
+            <div class="xCalendar_head_wrap"></div>
+            <div class="xCalendar_wrap">
+            </div>
+        </div>
+
+    </div>
+</script>
 <script type="text/javascript" src="xCalendar.js"></script>
 <script type="text/javascript">
-    xCalendar.render(2014,3);
+    new XCalendar(tour_date,{width:250});
 </script>
 </body>
 </html>

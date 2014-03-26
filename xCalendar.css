@@ -3,9 +3,10 @@
     width:250px;
     font-size:16px;
     border: 1px solid #aaa;
+    display:none;
 }
 .xCalendar-top-panel{
-    margin-top: 15px;
+    margin-top: 4%;
 }
 .xCalendar-top-panel .date-holder{
     line-height: 30px;
@@ -20,7 +21,7 @@
     width: 50px;
     height: 30px;
     position: absolute;
-    top:15px;
+    top:4%;
     -webkit-user-select: none;
     -moz-user-select:none;
 }
@@ -30,11 +31,12 @@
     display: block;
     margin: 0 auto;
     position: relative;
-    top:6px;
+    top:10px;
     content: " ";
-    border-top: .5em solid transparent;
-    border-bottom: .5em solid transparent;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
 }
+
 .xCalendar-switch-btn.prev-month{
     left:0;
 }
@@ -42,21 +44,26 @@
     right:0;
 }
 .xCalendar-switch-btn.prev-month:before{
-    border-right: 0.75em solid #87B23F;
+    border-right: 8px solid #87B23F;
 }
 .xCalendar-switch-btn.next-month:before{
-
     border-right: 0;
-    border-left: 0.75em solid #87B23F;
-
+    border-left: 8px solid #87B23F;
+}
+.xCalendar-switch-btn.prev-month:hover:before{
+    border-right: 8px solid #fff;
+}
+.xCalendar-switch-btn.next-month:hover:before{
+    border-right: 0;
+    border-left: 8px solid #fff;
 }
 
 .xCalendar-table-ctn{
 
-    margin: 0 20px 20px 20px;
+    margin: 0 4% 4% 4%;
 
 }
-.xCalendar-table-ctn .xCalendar_wrap{
+.xCalendar-table-ctn .xCalendar-wrap{
     width:100%;
     position: relative;
     overflow: hidden;
@@ -69,15 +76,15 @@
     width:100%;
     height:100% ;
     position: absolute;
-    transition:0.6s;
-    -webkit-transition:0.6s;
-    -moz-transition:0.6s;
-    -o-transition:0.6s;
-    -ms-transition:0.6s;
+
+
+    transition:top 0.6s ease 0s;
+
     background: #fff;
 }
 .xCalendar-table td{
     width:14%;
+    position: relative;
 }
 .xCalendar-table.hide-thead thead{
     display: none;
@@ -98,11 +105,7 @@
     text-align: center;
     position: relative;
 }
-.xCalendar-day:hover,.xCalendar-switch-btn:hover{
 
-    background: #b8d586;
-    color: #fff;
-}
 
 .xCalendar-table .xCalendar-day.xCalendar-day-outfocus{
     color:#ddd;
@@ -110,20 +113,18 @@
 .xCalendar-table .xCalendar-day.xCalendar-day-outfocus:hover{
     color:#000;
 }
-.xCalendar-table .xCalendar-day.xCalendar-day-today{
-
-}
-.xCalendar-table .xCalendar-day.xCalendar-day-today:before{
+.xCalendar-table td.xCalendar-day-today:before{
     content: " ";
     position: absolute;
-    top: 2px;
-    right: 2px;
+    top: 0px;
+    right: 0px;
     width: 0;
     height: 0;
-    border-top: 0.5em solid #87B23F;
-    border-left: .5em solid transparent;
+    border-top: 6px solid #87B23F;
+    border-left: 6px solid transparent;
 }
-.xCalendar-table .xCalendar-day.xCalendar-day-selected{
+
+.xCalendar-table td.xCalendar-day-selected{
     background:#87B23F;
     color: #fff;
 }
@@ -131,7 +132,12 @@
     color:#999;
     font-size:87.5%;
 }
-
+.xCalendar .month-panel{
+    display: none;
+}
+.xCalendar .year-panel{
+    display: none;
+}
 .xCalendar .month-panel >.month-block {
     display: inline-block;
     width: 32%;
