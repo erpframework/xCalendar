@@ -8,7 +8,7 @@
 
 </head>
 <body>
-<input type="text" id="tour_date"/>
+<input type="text" id="tour_date" value="NaN-NaN-NaN"/>
 <script type="text/html">
     <div class="xCalendar">
 
@@ -86,7 +86,12 @@
 </script>
 <script type="text/javascript" src="xCalendar.js"></script>
 <script type="text/javascript">
-    new XCalendar(tour_date,{width:250});
+    new XCalendar(tour_date,{
+
+        min:'2014-03-01',
+        max:'2014-06-23',
+        fullscreen:true
+    });
 </script>
 </body>
 </html>
