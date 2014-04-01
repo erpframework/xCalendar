@@ -21,19 +21,38 @@
     margin-top: 4%;
 }
 .xCalendar-top-panel .date-holder{
-    line-height: 30px;
+    line-height: 38px;
     width: 100%;
     text-align: center;
 }
 .xCalendar-top-panel .date-holder>div{
     display: inline-block;
     vertical-align: top;
+    padding: 0 15px 0 5px;
+    position: relative;
+    border: 1px solid transparent;
+    cursor: pointer;
 }
+.xCalendar-top-panel .date-holder>div:hover{
+
+    border: 1px solid #87b23f;
+}
+.xCalendar-top-panel .date-holder>div:after{
+    content:'';
+    width:0;
+    height:0;
+    position: absolute;
+    top: 40%;
+    right: 5px;
+    border: 4px solid rgba(0, 0, 0, 0);
+    border-top: 6px solid #87B23F;
+}
+
 .xCalendar-switch-btn{
     width: 50px;
     height: 30px;
     position: absolute;
-    top:4%;
+    top:5%;
     -webkit-user-select: none;
     -moz-user-select:none;
 }
@@ -163,10 +182,14 @@
 }
 .xCalendar .month-panel{
     display: none;
+    margin:10px 10px 20px 10px;
 }
 .xCalendar .year-panel{
     display: none;
+    margin:10px 10px 20px 10px;
 }
+
+
 .xCalendar .month-panel >.month-block {
     display: inline-block;
     width: 32%;
@@ -174,6 +197,8 @@
     line-height: 35px;
     height: 35px;
     cursor: pointer;
+    -moz-user-select:none;
+    -webkit-user-select:none;
 }
 
 .xCalendar .year-panel >.year-block {
@@ -183,10 +208,22 @@
     line-height: 35px;
     height: 35px;
     cursor: pointer;
+    -moz-user-select:none;
+    -webkit-user-select:none;
 }
 .xCalendar .year-panel >.year-block:hover,.xCalendar .month-panel >.month-block:hover,.xCalendar-table td:hover,.xCalendar-switch-btn:hover{
     background: #87b23f;
     color:#fff;
+}
+
+.xCalendar .year-panel .panel-disabled,.xCalendar .month-panel .panel-disabled{
+    color:#ddd;
+    cursor: default;
+}
+
+.xCalendar .year-panel .panel-disabled:hover,.xCalendar .month-panel .panel-disabled:hover{
+    color:#ddd;
+    background: #fff;
 }
 .xCalendar-switch-btn.disabled:hover{
     background: transparent;

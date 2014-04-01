@@ -5,6 +5,7 @@
  * Time: 下午7:14
  */
 !function () {
+    Date.prototype.toString=Date.prototype.toLocaleDateString;
     var DateUtil = window.DateUtil = function () {
         var core = {};
         core.lang = {
@@ -97,11 +98,14 @@
             return date1.getFullYear() == date2.getFullYear() && date1.getMonth() == date2.getMonth() && date1.getDate() == date2.getDate();
 
         };
+        core.clone=function(date){
+            return new Date(date.getTime());
+        };
         core.parse = function (dateStr, formatStr) {
             _matchType = [];
             if (dateStr) {
                 if (formatStr) {
-                    var date = new Date();
+                    var date = new Date(1,0,1);
                     date.setHours(0, 0, 0, 0);
 
                     var reg = new RegExp(formatStr.replace(_regFormat, function (m) {
@@ -163,39 +167,30 @@
 
 
     function getDaysNumInAMonth(year, month) {
-        var _monthDate = new Date();
-        _monthDate.setFullYear(year);
-        _monthDate.setMonth(month);
-        _monthDate.setDate(0);
+        var _monthDate = new Date(year,month,0);
+
         return  _monthDate.getDate();
     }
 
     function getCurrentDate(year, month, date) {
-        var _curDate = new Date();
-        _curDate.setFullYear(year);
-        _curDate.setMonth(month - 1);
-        _curDate.setDate(date);
-        return _curDate;
+
+        return new Date(year,month-1,date);
 
     }
 
     function modifyDate(date, d, m, y) {
-        var newDate = new Date();
-
-        newDate.setFullYear(date.getFullYear() + (y || 0));
-        newDate.setMonth(date.getMonth() + (m || 0));
-        newDate.setDate(date.getDate() + (d || 0));
-
-        return newDate;
-
+        return new Date(date.getFullYear() + (y || 0),date.getMonth() + (m || 0),date.getDate() + (d || 0));
     }
 
     function _resolveDisableDate(xCalendar, date) {
         var dateStr = DateUtil.format(date, xCalendar.config.format);
+
         if (xCalendar.config.min && dateStr < xCalendar.config.minDateStr) {
             return true;
         }
+
         if (xCalendar.config.max && dateStr > xCalendar.config.maxDateStr) {
+
             return true;
         }
         if (xCalendar.config.disable) {
@@ -263,9 +258,14 @@
         xCalendar.width=w;
         xCalendar.height=h;
     }
-    function _initPosition(xCalendar){
+    function _initPosition(xCalendar,init){
         if(xCalendar.config.fullscreen){
-            var $mask=xCalendar.$mask=$('<div></div>');
+            var $mask=xCalendar.$mask;
+            if(init){
+                $mask=xCalendar.$mask=$('<div></div>');
+                $(document.body).append($mask).append(xCalendar.$container);
+            }
+
             $mask.css({
                 position:'fixed',
                 top:0,
@@ -276,11 +276,19 @@
                 display:'none',
                 zIndex:(xCalendar.config.zIndex||1000)-1
             });
-            $(document.body).append($mask).append(xCalendar.$container);
+
+            var x=(window.innerWidth-xCalendar.width)/2;
+            if(x<0){
+                x=0;
+            }
+            y=(window.innerHeight-xCalendar.$container.height())/2;
+            if(y<0){
+                y=0;
+            }
             xCalendar.$container.css({
                 position:'fixed',
-                left: (window.innerWidth-xCalendar.width)/2 + 'px',
-                top: (window.innerHeight-xCalendar.$container.height())/2+'px',
+                left:  x+ 'px',
+                top: y+'px',
                 zIndex: xCalendar.config.zIndex || 1000
 
             }).addClass('fullscreen');
@@ -289,15 +297,16 @@
 
         }
         else{
-            window.x=xCalendar.$el[0];
-            console.log(xCalendar.$el[0].offsetLeft,xCalendar.$el[0].offsetTop,xCalendar.$el[0].offsetHeight);
+
             xCalendar.$container.css({
                 left: xCalendar.$el[0].offsetLeft + 'px',
                 top: xCalendar.$el[0].offsetTop + xCalendar.$el[0].offsetHeight,
                 zIndex: xCalendar.config.zIndex || 1000
 
             });
-            xCalendar.$el.after(xCalendar.$container);
+            if(init){
+                xCalendar.$el.after(xCalendar.$container);
+            }
         }
 
     }
@@ -326,11 +335,11 @@
     }
     function XCalendar(el, config) {
         if (el) {
-            if(uuid==5){
-                debugger;
-            }
-            var $el = el.jquery ? el : $(el);
 
+            var $el = el.jquery ? el : $(el);
+            if($el.length==0){
+                return;
+            }
             this.config = $.extend({},defaultConfig, config);
             this.id = expando + uuid++;
             if(this.config.min instanceof Date){
@@ -348,7 +357,7 @@
 
             }
             else{
-                this.config.maxDteStr=this.config.max;
+                this.config.maxDateStr=this.config.max;
                 this.config.max=DateUtil.parse(this.config.max, this.config.format);
 
             }
@@ -362,20 +371,22 @@
 
 
 
-            _initPosition(this);
+            _initPosition(this,true);
             this.isOpen=false;
             this.isOpenEx=false;
+            this.isYearhOpen=false;
+            this.isMonthOpen=false;
             $el.attr('data-x-calendar', this.id);
             this.currentDate = DateUtil.parse(this.config.defaultDate, this.config.format) || new Date();
-            console.log(this.currentDate.getTime(),this.config.min.getTime(),this.currentDate.toLocaleDateString(),this.config.min.toLocaleDateString());
+
             if(this.currentDate.getTime()<this.config.min.getTime()){
-                this.currentDate=this.config.min;
+                this.currentDate=DateUtil.clone(this.config.min);
             }
-            if(this.currentDate.getTime()>this.config.max.getTime()){
-                this.currentDate=this.config.max;
+            else if(this.currentDate.getTime()>this.config.max.getTime()){
+                this.currentDate=DateUtil.clone(this.config.max);
             }
             _initSwitchButton(this);
-            _initYearPanel(this, this.currentDate.getFullYear());
+            _initYearMonthPanel(this, this.currentDate.getFullYear());
             var self = this;
 
             $el.on('focus', function () {
@@ -419,12 +430,22 @@
                     if (self.config.onSelect) {
                         self.config.onSelect.call(self, self.selectedDate, dateStr);
                     }
-                    console.log(self.selectedDate.toLocaleDateString());
+
                     console.log('click td closed');
                     self.close();
                     //evt.stopPropagation();
                 }
             });
+            if(window.onorientationchange){
+                window.addEventListener('orientationchange',function(){
+                    setTimeout(function(){
+
+                        _initPosition(self);
+                        self.close();
+                    },1000);
+
+                });
+            }
         }
     }
 
@@ -436,27 +457,86 @@
             if(!this.isOpen){
                 var date = DateUtil.parse(dateStr, this.config.format) || this.currentDate;
                 this.render(date.getFullYear(), date.getMonth() + 1);
-
-
-
+                this.$container.find('.xCalendar-table-ctn').show();
+                this.$container.find('.month-panel').hide();
+                this.$container.find('.year-panel').hide();
+                this.closeMonthPanel();
+                this.closeYearPanel();
                 if(this.config.fullscreen){
                     this.$mask.show();
                     this.$container.css('-webkit-transform','scale(0)');
                     this.$container.show();
+                    _renderPrev(this);
+                    _renderNext(this);
                     var self=this;
                     clearTimeout(self.hideTimer);
                     setTimeout(function(){
                         self.$container.css('-webkit-transform','scale(1)');
                     },100);
-                    setTimeout(function(){
-                        self.$container.css('-webkit-transform','');
-                    },700);
+                    /*setTimeout(function(){
+                     self.$container.css('-webkit-transform','');
+                     },1000);*/
 
                 }
                 else{
                     this.$container.show();
+                    _renderPrev(this);
+                    _renderNext(this);
                 }
                 this.isOpen=true;
+
+            }
+        },
+        openYearPanel:function(){
+            this.$container.find('.xCalendar-table-ctn').hide();
+            this.$container.find('.month-panel').hide();
+            _generateYearPanel(this,this.currentYear());
+            this.$container.find('.year-panel').show();
+            this.isMonthOpen=false;
+            this.isYearOpen=true;
+
+        },
+        closeYearPanel:function(){
+            this.$container.find('.xCalendar-table-ctn').show();
+            this.$container.find('.year-panel').hide();
+            this.isYearOpen=false;
+
+        },
+        toggleYearPanel:function(){
+            if(!this.isYearOpen){
+                this.openYearPanel();
+            }
+            else{
+                this.closeYearPanel();
+            }
+        },
+        openMonthPanel:function(){
+            var self=this;
+            this.$container.find('.month-panel .month-block').each(function(idx,item){
+                if((new Date(self.currentYear(),idx+1,0)<=self.config.min)||(new Date(self.currentYear(),idx,1)>=self.config.max)){
+                    item.className+=' panel-disabled';
+                }
+            });
+            this.$container.find('.xCalendar-table-ctn').hide();
+            this.$container.find('.year-panel').hide();
+            this.$container.find('.month-panel').show();
+            this.isMonthOpen=true;
+            this.isYearOpen=false;
+
+        },
+        closeMonthPanel:function(){
+            this.$container.find('.xCalendar-table-ctn').show();
+            this.$container.find('.month-panel').hide();
+            this.isMonthOpen=false;
+
+        },
+        toggleMonthPanel:function(){
+
+            if(!this.isMonthOpen){
+                this.openMonthPanel();
+            }
+            else{
+                this.closeMonthPanel();
 
             }
         },
@@ -477,8 +557,7 @@
             this.isOpenEx=false;
         },
         render: function (year, month) {
-            this.currentDate.setFullYear(year);
-            this.currentDate.setMonth(month - 1);
+
             this.$currentTable = $(_generateTable(this, year, month));
 
             this.$currentTable.css({
@@ -489,11 +568,11 @@
             var $table_wrap = this.$container.find('.xCalendar-wrap');
             $table_wrap.html('');
             $table_wrap.append(this.$currentTable);
-
-            _renderPrev(this);
-            _renderNext(this);
             this.setCurrentMonth(year, month);
             _changeSwitchBtnState(this);
+
+
+
         },
         currentYear: function () {
             return this.currentDate.getFullYear();
@@ -502,6 +581,7 @@
             return this.currentDate.getMonth() + 1;
         },
         setCurrentMonth: function (year, month) {
+            this.currentDate.setDate(1);
             this.currentDate.setFullYear(year);
             this.currentDate.setMonth(month - 1);
             this.$container.find('.date-month-wrap').html((this.currentDate.getMonth() + 1) + '月');
@@ -526,14 +606,14 @@
             '</div>' +
             '<div class="month-panel">';
         for (var i = 0; i < 12; i++) {
-            template += '<div class="month-block">' + xCalendar.config.monthsFull[i] + '</div>';
+            template += '<div class="month-block" data-month="'+(i+1)+'">' + xCalendar.config.monthsFull[i] + '</div>';
         }
         template += '</div>' +
-            '<div class="year-panel"><div class="year-block prev-year-panel">...</div>';
-        for (i = 1; i <= 11; i++) {
+            '<div class="year-panel"><div class="year-block prev-year-panel"><<</div>';
+        for (i = 1; i < 11; i++) {
             template += '<div class="year-block"></div>'
         }
-        template += '<div class="year-block next-year-panel">...</div></div>' +
+        template += '<div class="year-block next-year-panel">>></div></div>' +
             '<div class="xCalendar-table-ctn">' +
             '<div class="xCalendar-head-wrap"></div>' +
             '<div class="xCalendar-wrap"></div>' +
@@ -547,6 +627,7 @@
         var dIdx = 1, maxDays = getDaysNumInAMonth(year, month);
         i = 0;
         body += '<tr>';
+
         // console.log(xCalendar.config.firstDay,getCurrentDate(year, month, 1).toLocaleDateString(),getCurrentDate(year, month, 1).getDay(),maxDays);
         while (safeIndex-- > 0) {
 
@@ -555,7 +636,7 @@
                 curWeekDay %= 7;
             }
             var curDate = getCurrentDate(year, month, dIdx);
-
+            //console.log(year,month,curDate);
 
             if (dIdx <= maxDays) {
                 if (curDate.getDay() != curWeekDay) {
@@ -608,6 +689,7 @@
 
         var $table = $(_generateTable(xCalendar, xCalendar.currentYear(), xCalendar.currentMonth() - 1));
         $table.css('zIndex', 1);
+
         xCalendar.$container.find('.xCalendar-wrap').append($table);
 
 
@@ -703,13 +785,18 @@
     }();
 
     function _changeSwitchBtnState(xCalendar){
-        if (xCalendar.currentMonth() < xCalendar.config.max.getMonth() + 1 && xCalendar.currentYear() <= xCalendar.config.max.getFullYear()) {
+        var nextMonth=new Date(xCalendar.currentYear(),xCalendar.currentMonth(),1);
+        var prevMonth=new Date(xCalendar.currentYear(),xCalendar.currentMonth()-1,0);
+
+
+        if (nextMonth <=xCalendar.config.max) {
             xCalendar.$container.find('.next-month').removeClass('disabled');
         }
         else{
             xCalendar.$container.find('.next-month').addClass('disabled');
         }
-        if (xCalendar.currentMonth() > xCalendar.config.min.getMonth() + 1 && xCalendar.currentYear() >= xCalendar.config.min.getFullYear()) {
+
+        if (prevMonth>= xCalendar.config.min) {
             xCalendar.$container.find('.prev-month').removeClass('disabled');
         }
         else{
@@ -721,10 +808,10 @@
 
         xCalendar.$container.find('.prev-month').on('click', function (evt) {
 
-            if (!_inScroll) {
+            if (!_inScroll&&!(xCalendar.isYearOpen||xCalendar.isMonthOpen)) {
 
-
-                if (xCalendar.currentMonth() > xCalendar.config.min.getMonth() + 1 && xCalendar.currentYear() >= xCalendar.config.min.getFullYear()) {
+                var prevMonth=new Date(xCalendar.currentYear(),xCalendar.currentMonth()-1,0);
+                if (prevMonth>=xCalendar.config.min) {
                     _inScroll = true;
 
                     var h = -parseInt(xCalendar.$prevTable.css('top'));
@@ -743,7 +830,7 @@
                     Animate(xCalendar.$currentTable, {'top': h + 'px'}, 600);
                 }
                 else{
-                    debugger;
+
                 }
 
 
@@ -752,10 +839,10 @@
         });
 
         xCalendar.$container.find('.next-month').on('click', function (evt) {
-            if (!_inScroll) {
+            if (!_inScroll&&!(xCalendar.isYearOpen||xCalendar.isMonthOpen)) {
 
-
-                if (xCalendar.currentMonth() < xCalendar.config.max.getMonth() + 1 && xCalendar.currentYear() <= xCalendar.config.max.getFullYear()) {
+                var nextMonth=new Date(xCalendar.currentYear(),xCalendar.currentMonth(),1);
+                if (nextMonth<=xCalendar.config.max) {
                     _inScroll = true;
 
                     var h = -parseInt(xCalendar.$nextTable.css('top'));
@@ -769,7 +856,7 @@
                         _changeSwitchBtnState(xCalendar);
 
                         _inScroll = false;
-                        console.log(1);
+
                     });
                     Animate(xCalendar.$currentTable, {'top': h + 'px'}, 600);
                 }
@@ -779,32 +866,71 @@
         });
     }
 
+    function _generateYearPanel(xCalendar,year) {
+        xCalendar.$container.find('.year-panel .year-block').each(function (idx, item) {
 
-    function _initYearPanel(xCalendar, year) {
-        var panelYear = year,
-            $yearPanel = xCalendar.$container.find('.year-panel .prev-year-panel');
+            var curYear=year - 7 + idx;
+            if (idx > 0 && idx < 11) {
+                item.innerHTML = curYear;
+            }
 
-        function generateYearPanel() {
-            $yearPanel.each(function (idx, item) {
-
-                if (idx > 0 && idx < 11) {
-                    item.innerHTML = panelYear - 7 + idx;
-                }
-            });
-        }
-
-        $yearPanel.on('click', function (evt) {
-            panelYear -= 10;
-            generateYearPanel();
+            if(new Date(curYear,11,31)<xCalendar.config.min||new Date(curYear,0,1)>xCalendar.config.max){
+                $(item).addClass('panel-disabled');
+            }
+            else{
+                $(item).removeClass('panel-disabled');
+            }
 
         });
-        $yearPanel.on('click', function (evt) {
-            panelYear += 10;
-            generateYearPanel();
-
-        });
-        generateYearPanel();
     }
+    function _initYearMonthPanel(xCalendar,year) {
+        var panelYear=year,isYearOpen=false,isMonthOpen=false;
+        xCalendar.$container.find('.prev-year-panel').on('click', function (evt) {
+
+            if(!$(evt.target).hasClass('panel-disabled')){
+                panelYear -= 10;
+                _generateYearPanel(xCalendar,panelYear);
+            }
+
+        });
+        xCalendar.$container.find('.next-year-panel').on('click', function (evt) {
+
+            if(!$(evt.target).hasClass('panel-disabled')){
+                panelYear += 10;
+                _generateYearPanel(xCalendar,panelYear);
+            }
+
+        });
+        xCalendar.$container.find('.date-year-wrap').on('click',function(evt){
+            panelYear=xCalendar.currentYear();
+            xCalendar.toggleYearPanel();
+        });
+        xCalendar.$container.find('.date-month-wrap').on('click',function(evt){
+            xCalendar.toggleMonthPanel();
+        });
+        xCalendar.$container.find('.year-panel .year-block').on('click',function(evt){
+            var $this=$(evt.target);
+            if(!$this.hasClass('panel-disabled')&&!$this.hasClass('prev-year-panel')&&!$this.hasClass('next-year-panel')){
+                xCalendar.render(+$this.html(),xCalendar.currentMonth());
+                _renderPrev(xCalendar);
+                _renderNext(xCalendar);
+                xCalendar.closeYearPanel();
+
+            }
+        });
+        xCalendar.$container.find('.month-panel .month-block').on('click',function(evt){
+            var $this=$(evt.target);
+            if(!$this.hasClass('panel-disabled')){
+                xCalendar.render(xCalendar.currentYear(),+$this.attr('data-month'));
+                xCalendar.closeMonthPanel();
+                _renderPrev(xCalendar);
+                _renderNext(xCalendar);
+
+            }
+        });
+        _generateYearPanel(xCalendar,panelYear);
+    }
+
 
     window.XCalendar = XCalendar;
 
