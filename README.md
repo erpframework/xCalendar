@@ -4,14 +4,10 @@
 即将废弃
 基本用法
 
-``javascript
+```javascript
 
-new XCalendar(element,config);//这样就初始化了一个日历控件 你只需要config写好就行
-//element为绑定日历控件的input标签
-//config为配置参数
-//包含如下配置项
-
-{
+new XCalendar(element,{//这样就初始化了一个日历控件 element为绑定日历控件的input标签
+  //以下参数都不是必须的 根据需要写即可
   width:'245',//宽度
   min:'2012-06-29',//最小日期
   max:'2015-12-20',//最大日期
@@ -27,4 +23,7 @@ new XCalendar(element,config);//这样就初始化了一个日历控件 你只�
   firstDay:0,//日历布局 从左到右是从周几开始排的 0表示周日开始 1表示周一开始 以此类推
   format:'yyyy-mm-dd'//日期字符串的格式
 
-}
+});
+
+
+
