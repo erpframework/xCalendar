@@ -4,10 +4,13 @@
 即将废弃
 基本用法
 
-new XCalendar(element,config);即可
-element为绑定日历控件的input标签
-config为配置参数
-包含如下配置项
+``javascript
+
+new XCalendar(element,config);//这样就初始化了一个日历控件 你只需要config写好就行
+//element为绑定日历控件的input标签
+//config为配置参数
+//包含如下配置项
+
 {
   width:'245',//宽度
   min:'2012-06-29',//最小日期
