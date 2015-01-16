@@ -19,7 +19,6 @@
 
         function _dateStrResolver(flag) {
 
-
             if (flag == 'yyyy' || flag == 'yy' || flag == 'y') {
 
                 _matchType.push('year');
@@ -630,7 +629,6 @@
 
         // console.log(xCalendar.config.firstDay,getCurrentDate(year, month, 1).toLocaleDateString(),getCurrentDate(year, month, 1).getDay(),maxDays);
         while (safeIndex-- > 0) {
-
             var curWeekDay = xCalendar.config.firstDay + i++;
             if (curWeekDay >= 7) {
                 curWeekDay %= 7;

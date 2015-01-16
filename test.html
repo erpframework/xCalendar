@@ -3,12 +3,30 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <script src="jquery.js"></script>
     <link rel="stylesheet" href="xCalendar.css">
+    <script src="jquery.js"></script>
 
+  <style>
+    .arrow-left{
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      background: #000;
+    }
+    .arrow-right{
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      background: #000;
+    }
+    .date-holder{
+      display: inline-block;
+    }
+
+  </style>
 </head>
 <body>
-<input type="text" id="tour_date" value="NaN-NaN-NaN"/>
+<input type="text" id="tour_date" readonly placeholder="选择日期" value=""/>
 <script type="text/html">
     <div class="xCalendar">
 
@@ -84,14 +102,25 @@
 
     </div>
 </script>
-<script type="text/javascript" src="xCalendar.js"></script>
+<script src="xCalendar.js"></script>
 <script type="text/javascript">
-    new XCalendar(tour_date,{
+  new XCalendar(tour_date,{
+    width:'445',
+    min:'2012-06-29',
+    max:'2015-12-20',
+    disable:function(date,dateStr){
+      return false;
+    },
+    fullscreen:true,
+    onSelect:function(date){
+    },
+    onClose:function(date){
+    },
+    defaultDate:new Date(),
+    firstDay:0,
+    format:'yyyy-mm-dd'
 
-        min:'2014-03-01',
-        max:'2014-06-23',
-        fullscreen:true
-    });
+  });
 </script>
 </body>
 </html>
