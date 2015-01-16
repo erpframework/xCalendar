@@ -104,23 +104,23 @@
 </script>
 <script src="xCalendar.js"></script>
 <script type="text/javascript">
-  new XCalendar(tour_date,{
+  new XCalendar(document.body,{
     width:'445',
     min:'2012-06-29',
     max:'2015-12-20',
     disable:function(date,dateStr){
       return false;
     },
-    fullscreen:true,
     onSelect:function(date){
     },
     onClose:function(date){
     },
     defaultDate:new Date(),
     firstDay:0,
-    format:'yyyy-mm-dd'
+    format:'yyyy-mm-dd',
+    selectClose:true
 
-  });
+  }).open();
 </script>
 </body>
 </html>

@@ -19,6 +19,7 @@
 
         function _dateStrResolver(flag) {
 
+
             if (flag == 'yyyy' || flag == 'yy' || flag == 'y') {
 
                 _matchType.push('year');
@@ -83,6 +84,41 @@
 
             else return flag;
         }
+        var _dateConver = {
+            'day': function (date, num) {
+                date.setDate(date.getDate() + num);
+            },
+            'year': function (date, num) {
+                var d = date.getDate();
+                date.setFullYear(date.getFullYear() + num);
+                if (date.getDate() != d) {
+                    date.setDate(0);
+                }
+            },
+            'month': function (date, num) {
+                var d = date.getDate();
+                date.setMonth(date.getMonth() + num);
+                if (date.getDate() != d) {
+                    date.setDate(0);
+
+                }
+            }
+        };
+
+        function _convert(str, date, num) {
+            str = str.toLowerCase();
+            if (str == 'd') {
+                str = 'day';
+            }
+            else if (str == 'y') {
+                str = 'year';
+            }
+            else if (str == 'm') {
+                str = 'month';
+            }
+            _dateConver[str](date, num);
+        }
+
 
         core.format = function (date, formatStr) {
             formatStr = formatStr || 'yyyy-mm-dd';
@@ -148,6 +184,19 @@
                 return null;
             }
         };
+        core.strtotime=function (str, date) {
+
+            date = date instanceof Date ? new Date(date) : new Date();
+            var reg = /([\+\-])(\d+)\s*([a-zA-Z]+)/g;
+            var token;
+            while (token = reg.exec(str)) {
+                //console.log(token);
+                var opt = token[1] == '-' ? -1 : 1;
+
+                _convert(token[3], date, +token[2] * opt);
+            }
+            return date;
+        }
         return core;
 
     }();
@@ -156,6 +205,8 @@
     var expando = 'xCalendar_',
         uuid = 1;
     var defaultConfig = {
+        min:'0000-01-01',
+        max:'9999-12-31',
         firstDay: 0,
         format: 'yyyy-mm-dd',
         weekdaysFull: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
@@ -257,14 +308,9 @@
         xCalendar.width=w;
         xCalendar.height=h;
     }
-    function _initPosition(xCalendar,init){
+    function _initPosition(xCalendar){
         if(xCalendar.config.fullscreen){
-            var $mask=xCalendar.$mask;
-            if(init){
-                $mask=xCalendar.$mask=$('<div></div>');
-                $(document.body).append($mask).append(xCalendar.$container);
-            }
-
+            var $mask=xCalendar.$mask=$('<div></div>');
             $mask.css({
                 position:'fixed',
                 top:0,
@@ -275,7 +321,7 @@
                 display:'none',
                 zIndex:(xCalendar.config.zIndex||1000)-1
             });
-
+            $(document.body).append($mask).append(xCalendar.$container);
             var x=(window.innerWidth-xCalendar.width)/2;
             if(x<0){
                 x=0;
@@ -297,15 +343,14 @@
         }
         else{
 
+
             xCalendar.$container.css({
                 left: xCalendar.$el[0].offsetLeft + 'px',
                 top: xCalendar.$el[0].offsetTop + xCalendar.$el[0].offsetHeight,
                 zIndex: xCalendar.config.zIndex || 1000
 
             });
-            if(init){
-                xCalendar.$el.after(xCalendar.$container);
-            }
+            xCalendar.$el.after(xCalendar.$container);
         }
 
     }
@@ -341,6 +386,7 @@
             }
             this.config = $.extend({},defaultConfig, config);
             this.id = expando + uuid++;
+
             if(this.config.min instanceof Date){
                 this.config.minDateStr=DateUtil.format(this.config.min,this.config.format);
 
@@ -363,19 +409,8 @@
 
 
 
-            this.$el=$el;
+
             var $dom = this.$container = _initDom(this);
-            _adjustSize(this);
-            _initHeader(this);
-
-
-
-            _initPosition(this,true);
-            this.isOpen=false;
-            this.isOpenEx=false;
-            this.isYearhOpen=false;
-            this.isMonthOpen=false;
-            $el.attr('data-x-calendar', this.id);
             this.currentDate = DateUtil.parse(this.config.defaultDate, this.config.format) || new Date();
 
             if(this.currentDate.getTime()<this.config.min.getTime()){
@@ -388,64 +423,80 @@
             _initYearMonthPanel(this, this.currentDate.getFullYear());
             var self = this;
 
+            _initHeader(this);
+            this.isOpen=false;
+            this.isOpenEx=false;
+            this.isYearhOpen=false;
+            this.isMonthOpen=false;
+            _adjustSize(this);
+            if($el[0].tagName=='INPUT'){
+                this.$el=$el;
+                _initPosition(this);
+
+            }
+            else{
+                $el.append($dom);
+                // this.open();
+            }
+            if(this.config.partials&&this.config.partials.append){
+                $dom.append(this.config.partials.append);
+            }
+            $el.attr('data-x-calendar', this.id);
+
+            var lock=false;
             $el.on('focus', function () {
-
+                lock=true;
+                this.blur();
+                lock=false;
                 self.open($el.val());
-            }).on('click',function(evt){
-                console.log(self.isOpenEx);
-                if(self.isOpenEx){
-                    console.log('click input closed');
+            });
+            if(this.config.bindClick!==false){
+                $el.on('click',function(evt){
+                    if(self.isOpenEx){
 
-                    if(self.config.secondClick){
-                        self.close();
+                        if(self.config.secondClick){
+                            self.close();
+                        }
                     }
+                    else{
+                        self.open($el.val());
+                        self.isOpenEx=true;
+                    }
+                    evt.stopPropagation();
+                })}
+            $el.on('blur',function(){
+                if(!self.config.selectClose&&!lock){
+                    self.timer=setTimeout(function(){
+                        self.close();
+                    },200);
                 }
-                else{
-                    self.open($el.val());
-                    self.isOpenEx=true;
-                }
-                evt.stopPropagation();
-            }).on('blur',function(){
-                self.timer=setTimeout(function(){
-                    console.log('blur closed');
-                    self.close();
-                },200);
             });
             $(document).on('click',function(){
-                console.log('click document closed');
-                self.close();
+                if(!self.config.selectClose){
+                    self.close();
+                }
             });
             $dom.on('click',function(evt){
                 clearTimeout(self.timer);
                 evt.stopPropagation();
             });
-            $dom.find('.xCalendar-wrap').on('click', 'td', function (evt) {
+            var clickType='click';
+            if('ontouchstart' in document.documentElement){
+                clickType='touchstart';
+            }
+            $dom.find('.xCalendar-wrap').on(clickType, 'td', function (evt) {
                 var $td = $(this);
-
                 if (!$td.attr('disabled')) {
                     self.selectedDate = new Date(+$td.attr('data-date'));
                     var dateStr = DateUtil.format(self.selectedDate, self.config.format);
                     $el.val(dateStr);
-                    if (self.config.onSelect) {
-                        self.config.onSelect.call(self, self.selectedDate, dateStr);
-                    }
-
                     console.log('click td closed');
                     self.close();
-                    //evt.stopPropagation();
+                    evt.stopPropagation();
                 }
             });
-            if(window.onorientationchange){
-                window.addEventListener('orientationchange',function(){
-                    setTimeout(function(){
-
-                        _initPosition(self);
-                        self.close();
-                    },1000);
-
-                });
-            }
         }
+
     }
 
     XCalendar.prototype = {
@@ -454,14 +505,22 @@
         },
         open:function(dateStr){
             if(!this.isOpen){
-                var date = DateUtil.parse(dateStr, this.config.format) || this.currentDate;
-                this.render(date.getFullYear(), date.getMonth() + 1);
+                var curDate= DateUtil.parse(dateStr, this.config.format);
+                if(curDate){
+                    this.selectedDate=DateUtil.clone(curDate);
+                }
+                else{
+                    curDate=this.currentDate
+                }
+
+                this.render(curDate.getFullYear(), curDate.getMonth() + 1);
                 this.$container.find('.xCalendar-table-ctn').show();
                 this.$container.find('.month-panel').hide();
                 this.$container.find('.year-panel').hide();
                 this.closeMonthPanel();
                 this.closeYearPanel();
                 if(this.config.fullscreen){
+                    //this.$container.css('position','absolute');
                     this.$mask.show();
                     this.$container.css('-webkit-transform','scale(0)');
                     this.$container.show();
@@ -485,6 +544,7 @@
                 this.isOpen=true;
 
             }
+            return this;
         },
         openYearPanel:function(){
             this.$container.find('.xCalendar-table-ctn').hide();
@@ -515,6 +575,9 @@
                 if((new Date(self.currentYear(),idx+1,0)<=self.config.min)||(new Date(self.currentYear(),idx,1)>=self.config.max)){
                     item.className+=' panel-disabled';
                 }
+                else{
+                    item.className=item.className.replace(' panel-disabled','');
+                }
             });
             this.$container.find('.xCalendar-table-ctn').hide();
             this.$container.find('.year-panel').hide();
@@ -540,23 +603,35 @@
             }
         },
         close:function(){
-            if(this.config.fullscreen){
-                this.$mask.hide();
-                this.$container.css('-webkit-transform','scale(0)');
-                var self=this;
-                clearTimeout(self.hideTimer);
-                self.hideTimer=setTimeout(function(){
-                    self.$container.hide();
-                },600);
+            if(this.isOpen){
+                if(!this.config.selectClose){
+                    if(this.config.fullscreen){
+                        this.$mask.hide();
+                        this.$container.css('-webkit-transform','scale(0)');
+                        var self=this;
+                        clearTimeout(self.hideTimer);
+                        self.hideTimer=setTimeout(function(){
+                            self.$container.hide();
+                        },600);
+                    }
+                    else{
+                        this.$container.hide();
+                    }
+
+                }
+                if (this.config.onSelect&&this.selectedDate) {
+                    var dateStr = DateUtil.format(this.selectedDate, this.config.format);
+                    this.config.onSelect.call(this, this.selectedDate, dateStr);
+                }
+                this.isOpen=false;
+                this.isOpenEx=false;
+                if(this.config.selectClose){
+                    this.open();
+                }
+
             }
-            else{
-                this.$container.hide();
-            }
-            this.isOpen=false;
-            this.isOpenEx=false;
         },
         render: function (year, month) {
-
             this.$currentTable = $(_generateTable(this, year, month));
 
             this.$currentTable.css({
@@ -629,6 +704,7 @@
 
         // console.log(xCalendar.config.firstDay,getCurrentDate(year, month, 1).toLocaleDateString(),getCurrentDate(year, month, 1).getDay(),maxDays);
         while (safeIndex-- > 0) {
+
             var curWeekDay = xCalendar.config.firstDay + i++;
             if (curWeekDay >= 7) {
                 curWeekDay %= 7;
